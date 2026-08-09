@@ -327,8 +327,23 @@ object Subtypes {
         return prevName to nextName
     }
 
+    var hideLanguageOnSpaceBarForLocale: Locale? = null
+    fun updateLanguageOnSpaceBarVisibility(context: Context) {
+        val activeLocales = context.getSettingBlocking(SubtypesSetting).map {
+            getLocale(convertToSubtype(it))
+        }.distinct()
+
+        if(activeLocales.size == 1) {
+            hideLanguageOnSpaceBarForLocale = activeLocales[0]
+        } else {
+            hideLanguageOnSpaceBarForLocale = null
+        }
+    }
+
     @JvmStatic
     fun getLanguageOnSpaceBar(locale: Locale, availableWidth: Float = Float.POSITIVE_INFINITY): String {
+        if(locale == hideLanguageOnSpaceBarForLocale) return ""
+
         if(availableWidth <= 5.0f) {
             return locale.language.uppercase();
         }
@@ -514,14 +529,7 @@ fun LanguageSwitcherDialog(
                     Text(stringResource(R.string.keyboard_switch_keyboard))
                 }
                 TextButton(onClick = {
-                    val intent = Intent()
-                    intent.setClass(context, SettingsActivity::class.java)
-                    intent.setFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    )
-                    intent.putExtra("navDest", "languages")
-                    context.startActivity(intent)
-
+                    SettingsActivity.openToNavDest(context, null)
                     onDismiss()
                 }) {
                     Text(stringResource(R.string.keyboard_language_settings))

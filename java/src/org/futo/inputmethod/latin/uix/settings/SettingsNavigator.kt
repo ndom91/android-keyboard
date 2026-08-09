@@ -33,6 +33,7 @@ import org.futo.inputmethod.latin.uix.settings.pages.DevKeyboardScreen
 import org.futo.inputmethod.latin.uix.settings.pages.DevLayoutEdit
 import org.futo.inputmethod.latin.uix.settings.pages.DevLayoutEditor
 import org.futo.inputmethod.latin.uix.settings.pages.DevLayoutList
+import org.futo.inputmethod.latin.uix.settings.pages.DevPaletteScreen
 import org.futo.inputmethod.latin.uix.settings.pages.DevThemeImportScreen
 import org.futo.inputmethod.latin.uix.settings.pages.DeveloperScreen
 import org.futo.inputmethod.latin.uix.settings.pages.HelpMenu
@@ -64,6 +65,7 @@ import org.futo.inputmethod.latin.uix.settings.pages.pdict.ConfirmDeleteExtraDic
 import org.futo.inputmethod.latin.uix.settings.pages.pdict.PersonalDictionaryLanguageList
 import org.futo.inputmethod.latin.uix.settings.pages.pdict.PersonalDictionaryLanguageListForLocale
 import org.futo.inputmethod.latin.uix.settings.pages.pdict.WordPopupDialogF
+import org.futo.inputmethod.latin.uix.settings.pages.themes.CustomThemeDialog
 import org.futo.inputmethod.latin.uix.settings.pages.themes.CustomThemeScreen
 import org.futo.inputmethod.latin.uix.settings.pages.themes.DeleteCustomThemeDialog
 import org.futo.inputmethod.latin.uix.settings.pages.themes.ThemeScreen
@@ -176,6 +178,7 @@ fun SettingsNavigator(
             composable("devlayouts") { DevLayoutList(navController) }
             composable("devlayouteditor") { DevLayoutEditor(navController) }
             composable("devtheme") { DevThemeImportScreen(navController) }
+            composable("dynamicpalette") { DevPaletteScreen(navController) }
             composable("devkeyboard") { DevKeyboardScreen(navController) }
             composable("blacklist") { BlacklistScreen(navController) }
             composable("payment") { PaymentScreen(navController) { navController.navigateUp() } }
@@ -188,6 +191,9 @@ fun SettingsNavigator(
             }
             dialog("alreadyPaid") {
                 AlreadyPaidDialog(navController = navController)
+            }
+            dialog("customThemeDialog") {
+                CustomThemeDialog(navController = navController)
             }
             addModelManagerNavigation(navController)
         }

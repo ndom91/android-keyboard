@@ -62,6 +62,7 @@ import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
 import org.futo.inputmethod.latin.uix.settings.userSettingToggleSharedPrefs
 import org.futo.inputmethod.latin.uix.suggestionStyleAlternative
 import org.futo.inputmethod.latin.uix.suggestionStylePrimary
+import org.futo.inputmethod.updates.openURI
 import org.futo.inputmethod.v2keyboard.LayoutManager
 import java.util.Locale
 
@@ -108,20 +109,26 @@ private fun PreviewSuggestions(word1: String, word2: String, word3: String, isAl
 }
 
 @Composable
-@Preview
-fun KASROZMenu() {
-    val context = LocalContext.current
-    val width = (LocalConfiguration.current.screenWidthDp - 64).coerceAtLeast(64).coerceAtMost(500)
-
+private fun englishSubtypes(): List<RichInputMethodSubtype> {
     val subtypes = useDataStoreValue(SubtypesSetting)
-    val showingKeyboard = remember { mutableStateOf(false) }
-
     val englishSubtypes = remember(subtypes) {
         subtypes
             .map { Subtypes.convertToSubtype(it) }
             .map { RichInputMethodSubtype(it) }
             .filter { it.locale.language.equals("en", ignoreCase = true) }
     }
+
+    return englishSubtypes
+}
+
+@Composable
+@Preview
+fun KASROZMenu() {
+    val context = LocalContext.current
+    val width = (LocalConfiguration.current.screenWidthDp - 64).coerceAtLeast(64).coerceAtMost(500)
+
+    val showingKeyboard = remember { mutableStateOf(false) }
+    val englishSubtypes = englishSubtypes()
 
     val englishLocale = remember(englishSubtypes) {
         englishSubtypes.firstOrNull()?.locale ?: Locale("en", "US")
@@ -158,6 +165,23 @@ fun KASROZMenu() {
 
     ScrollableList(horizontalAlignment = Alignment.CenterHorizontally) {
         ScreenTitle(stringResource(R.string.swipe_settings_kasroz), showBack = true)
+
+        SettingToggleRaw(
+            "Enable KASROZ Layout",
+            enabled = kasrozEnabled,
+            setValue = {
+                if(it) {
+                    Subtypes.addLanguage(context, englishLocale, "kasroz")
+                } else {
+                    context.getSetting(SubtypesSetting).filter {
+                        it.startsWith("en", ignoreCase = true) && "KeyboardLayoutSet=kasroz" in it
+                    }.forEach {
+                        Subtypes.removeLanguage(context, Subtypes.convertToSubtype(it))
+                    }
+                }
+            }
+        )
+
         Spacer(Modifier.height(16.dp))
         AnimatedVisibility(!showingKeyboard.value, exit = shrinkVertically()) {
             KeyboardLayoutPreview(
@@ -177,21 +201,6 @@ fun KASROZMenu() {
         }
         Text("KASROZ is the best way to swipe type, being specifically optimized to reduce mistakes in English.\n\nAfter enabling, ${switchingInstruction} to switch between KASROZ and ${nonKasrozLayout}.", modifier = Modifier.padding(24.dp))
 
-        SettingToggleRaw(
-            "Enable KASROZ Layout",
-            enabled = kasrozEnabled,
-            setValue = {
-                if(it) {
-                    Subtypes.addLanguage(context, englishLocale, "kasroz")
-                } else {
-                    context.getSetting(SubtypesSetting).filter {
-                        it.startsWith("en", ignoreCase = true) && "KeyboardLayoutSet=kasroz" in it
-                    }.forEach {
-                        Subtypes.removeLanguage(context, Subtypes.convertToSubtype(it))
-                    }
-                }
-            }
-        )
 
         NavigationItem("Try it",
             style = NavigationItemStyle.Misc,
@@ -201,7 +210,9 @@ fun KASROZMenu() {
             })
         NavigationItem("Read our blog",
             style = NavigationItemStyle.ExternalLink,
-            navigate = { })
+            navigate = {
+                context.openURI("https://futo.tech/blog/swipe-keyboard")
+            })
 
     }
 }
@@ -243,7 +254,11 @@ val SwipeMenu = UserSettingsMenu(
             default = {false},
         ),
 
-        UserSetting(R.string.swipe_settings_kasroz, subtitle = R.string.swipe_settings_kasroz_subtitle) {
+        // KASROZ is primarily for English and the menu isn't translated, so it's hidden if user
+        // doesn't have English layout
+        UserSetting(R.string.swipe_settings_kasroz, subtitle = R.string.swipe_settings_kasroz_subtitle, visibilityCheck = {
+            englishSubtypes().isNotEmpty()
+        }, appearInSearchIfVisibilityCheckFailed = false) {
             val nav = LocalNavController.current
             NavigationItem(
                 stringResource(R.string.swipe_settings_kasroz),

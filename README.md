@@ -2,7 +2,7 @@
 
 The goal is to make a good modern keyboard that stays offline and doesn't spy on you. This keyboard is a fork of [LatinIME, The Android Open-Source Keyboard](https://android.googlesource.com/platform/packages/inputmethods/LatinIME), with significant changes made to it.
 
-Check out the [FUTO Keyboard website](https://keyboard.futo.org/) for downloads and more information.
+Check out the [FUTO Keyboard website](https://keyboard.futo.tech/) for downloads and more information.
 
 The code is licensed under the [FUTO Source First License 1.1](LICENSE.md).
 
@@ -36,4 +36,17 @@ You can then open the project in Android Studio and build it that way, or use gr
 ```
 ./gradlew assembleUnstableDebug
 ./gradlew assembleStableRelease
+```
+
+## APK signing
+
+For official FUTO Keyboard versions, you can verify the APK's signing key fingerprint for integrity.
+
+```
+Signing key fingerprint for all versions except Google Play:
+
+MD5: 3A:BB:71:C6:BB:E4:92:27:B1:E3:5D:81:01:48:6A:B0
+SHA1: 5D:15:B3:6E:C9:6A:96:28:41:09:DD:62:93:0D:9C:39:9F:5F:06:43
+SHA-256: 74:3F:AD:58:64:AB:C4:26:50:0B:2D:C2:C4:7C:8A:D3:24:CB:CD:16:03:3F:80:16:99:48:41:35:63:74:F9:95
+
 ```
